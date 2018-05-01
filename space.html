@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>PONG</title>
+    <link rel="stylesheet" href="https://bootswatch.com/4/slate/bootstrap.min.css">
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.1.1/dist/phaser.js"></script>
+    <style type="text/css">
+      canvas {
+          margin-left: auto;
+          margin-right: auto;
+          display: block;
+        }
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+  <!--Nav Bar-->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <a class="navbar-brand" href="#">Games</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="#">About</a>
+              </li>
+          </ul>
+      </div>
+  </nav>
+  <br>
+    <script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 0 },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var player;
+    var player_speed = -450;
+    var opponent;
+    var opponent_speed = -300;
+    var puck;
+    var puck_init_vel = {x:-500, y:0};
+    var puck_x_vel_inc = 50;
+    var puck_y_vel_inc = 150;
+    var cursors;
+    var player_score = 0;
+    var opponent_score = 0
+    var game_over = false;
+    var score_obj;
+    var score_text;
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        this.load.image('background', 'assets/sky.png');
+        this.load.image('paddle', 'assets/paddle2.png');
+        this.load.image('puck', 'assets/puck.png');
+    }
+
+    function create ()
+    {
+        // background for our game
+        this.add.image(400, 300, 'background');
+
+        // player paddle
+        //--------------------------------------------------------------------------
+        player = this.physics.add.sprite(50, 300, 'paddle');
+            // keep the paddle contained within the play area
+        player.setCollideWorldBounds(true);
+            // makes sure the paddle is not pushed around by the puck
+        player.body.immovable = true;
+        //--------------------------------------------------------------------------
+
+        // ememy paddle
+        // *(set up almost exactly like the player paddle)
+        //--------------------------------------------------------------------------
+        opponent = this.physics.add.sprite(750, 300, 'paddle');
+        opponent.setCollideWorldBounds(true);
+        opponent.body.immovable = true;
+        //--------------------------------------------------------------------------
+
+        // Input Events
+        cursors = this.input.keyboard.createCursorKeys();
+
+        // puck
+        //--------------------------------------------------------------------------
+        puck = this.physics.add.sprite(400, 300, 'puck');
+        puck.setCollideWorldBounds(true);
+        puck.setBounce(1);
+        puck.setVelocity(0,0);
+        // puck.setVelocity(puck_init_vel.x, puck_init_vel.y);
+        //     cap the pucks velocity bc if it goes faster than this it will
+        //     "pass through" the paddles
+        puck.body.maxVelocity.x = 2000 - puck_x_vel_inc;
+        puck.body.maxVelocity.y = 2000 - puck_y_vel_inc;
+        //--------------------------------------------------------------------------
+
+        // paddle colliders
+        //--------------------------------------------------------------------------
+        this.physics.add.collider(puck, player, change_puck_velocity, null, this);
+        this.physics.add.collider(puck, opponent, change_puck_velocity, null, this);
+        //--------------------------------------------------------------------------
+
+        //score text
+        //--------------------------------------------------------------------------
+        score_text = player_score + ":" + opponent_score;
+        score_obj = this.add.text(400, 0, score_text, { fontSize: '32px', fill: '#000'});
+        //--------------------------------------------------------------------------
+
+        //Printing for testing
+        //--------------------------------------------------------------------------
+        console.log(player);
+        console.log(opponent);
+        console.log(puck);
+        console.log(score_obj);
+        console.log(game);
+        //--------------------------------------------------------------------------
+    }
+
+
+
+
+
+    function update ()
+    {
+      if (game_over)
+      {
+          return;
+      }
+      if(cursors.space.isDown)
+      {
+        if(puck.body.velocity.x === 0 && puck.body.velocity.y === 0)
+        {
+          if(player_score === 0 && opponent_score === 0)
+          {
+            puck.setVelocity(puck_init_vel.x, puck_init_vel.y);
+          }
+        }
+      }
+      player_controller();
+      opponent_controller();
+      score_handler();
+    }
+
+    function player_controller()
+    {
+      if (cursors.up.isDown)
+      {
+          player.setVelocityY(player_speed);
+      }
+      else if (cursors.down.isDown)
+      {
+          player.setVelocityY(-player_speed);
+      }
+      else
+      {
+          player.setVelocityY(0);
+      }
+    }
+
+    function opponent_controller()
+    {
+      if(puck.y < opponent.y-15)
+      {
+        opponent.setAccelerationY(opponent_speed);
+      }
+      else if(puck.y > opponent.y+15)
+      {
+        opponent.setAccelerationY(-opponent_speed);
+      }
+      else
+      {
+        opponent.setVelocityY(0);
+      }
+    }
+
+    function score_handler()
+    {
+      // if the player scored
+      if(puck.body.x >= 770)
+      {
+        player_point();
+      }
+      // if the opponent scored
+      if(puck.body.x <= 0)
+      {
+        opponent_point();
+      }
+    }
+
+    function reset_puck()
+    {
+      // put puck back in the center, then after 3 seconds start it with
+      // velocity towards the player with heighest points
+      puck.setVelocity(0,0);
+      puck.x = 400;
+      puck.y = 300;
+      if(player_score!=opponent_score)
+        puck_init_vel.x = (player_score>opponent_score) ? -500 : 500;
+      setTimeout(()=>{puck.setVelocity(puck_init_vel.x, puck_init_vel.y);}, 2000);
+    }
+
+    function player_point()
+    {
+      player_score++;
+      score_text = player_score + " : " + opponent_score;
+      score_obj.setText(score_text);
+      reset_puck();
+    }
+
+    function opponent_point()
+    {
+      opponent_score++;
+      score_text = player_score + " : " + opponent_score;
+      score_obj.setText(score_text);
+      reset_puck();
+    }
+
+    function change_puck_velocity(puck, paddle)
+    {
+      // flip the pucks x velocity and increase it's speed
+      // now find which y direction to hit the "puck" and add some y velocity to it
+      puck.body.velocity.x = (puck.body.velocity.x < 0) ? puck.body.velocity.x-puck_x_vel_inc : puck.body.velocity.x+puck_x_vel_inc;
+      // console.log(puck.body.velocity.x);
+      // if puck is hit by player
+      if(puck.x < 400)
+      {// update the puck's y velocity based on the players y velocity
+        // if the player is moving upward
+        if(player.body.velocity.y < 0)
+        {// give the puck some upward velocity
+          puck.body.velocity.y += -puck_y_vel_inc;
+        }
+        // if the player is moving downward
+        else if(player.body.velocity.y > 0)
+        {// give the puck some downward velocity
+          puck.body.velocity.y += puck_y_vel_inc;
+        }
+      }
+      else
+      {// repeat above but based on opponent velocity
+        if(opponent.body.velocity.y < 0)
+        {// give the puck some upward velocity
+          puck.body.velocity.y += -puck_y_vel_inc;
+        }
+        else if(opponent.body.velocity.y > 0)
+        {// give the puck some downward velocity
+          puck.body.velocity.y += puck_y_vel_inc;
+        }
+      }
+      // console.log(puck.body.velocity.y);
+    }
+
+
+    </script>
+
+</body>
+</html>

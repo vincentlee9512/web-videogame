@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8" />
     <title>PONG</title>
-    <link rel="stylesheet" href="https://bootswatch.com/4/slate/bootstrap.min.css">
     <script src="//cdn.jsdelivr.net/npm/phaser@3.1.1/dist/phaser.js"></script>
     <style type="text/css">
       canvas {
@@ -17,30 +16,11 @@
     </style>
 </head>
 <body>
-  <!--Nav Bar-->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <a class="navbar-brand" href="#">Games</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarColor01">
-          <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
-                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="#">About</a>
-              </li>
-          </ul>
-      </div>
-  </nav>
-  <br>
     <script type="text/javascript">
 
     var config = {
         type: Phaser.AUTO,
-        width: 800,
+        width: 1200,
         height: 600,
         physics: {
             default: 'arcade',
@@ -75,16 +55,17 @@
 
     function preload ()
     {
-        this.load.image('background', 'assets/sky.png');
-        this.load.image('paddle', 'assets/paddle2.png');
-        this.load.image('puck', 'assets/puck.png');
+        this.load.image('background', 'assets/Space_Background.png');
+        //this.load.image('paddle', 'assets/paddle2.png');
+        //this.load.image('puck', 'assets/puck.png');
     }
 
     function create ()
     {
         // background for our game
-        this.add.image(400, 300, 'background');
+        this.add.image(600, 300, 'background');
 
+        /*
         // player paddle
         //--------------------------------------------------------------------------
         player = this.physics.add.sprite(50, 300, 'paddle');
@@ -138,6 +119,7 @@
         console.log(score_obj);
         console.log(game);
         //--------------------------------------------------------------------------
+        */
     }
 
 
@@ -146,6 +128,7 @@
 
     function update ()
     {
+        /*
       if (game_over)
       {
           return;
@@ -163,6 +146,7 @@
       player_controller();
       opponent_controller();
       score_handler();
+        */
     }
 
     function player_controller()

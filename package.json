@@ -1,0 +1,23 @@
+{
+  "name": "web-videogame",
+  "version": "1.0.0",
+  "description": "A simple space shooter created for CISC 375 at St. Thomas",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vincentlee9512/web-videogame.git"
+  },
+  "author": "Vincent Lee, Oliver O'Keefe, and Chase Lau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vincentlee9512/web-videogame/issues"
+  },
+  "homepage": "https://github.com/vincentlee9512/web-videogame#readme",
+  "dependencies": {
+    "express": "latest",
+    "socket.io": "latest"
+  }
+}

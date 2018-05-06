@@ -18,6 +18,7 @@
   "homepage": "https://github.com/vincentlee9512/web-videogame#readme",
   "dependencies": {
     "express": "latest",
+    "phaser": "^3.6.0",
     "socket.io": "latest"
   }
 }

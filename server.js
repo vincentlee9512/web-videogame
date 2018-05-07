@@ -1,11 +1,10 @@
-
-var path = require('path');
-var express = require('express');
-var app = express();
+const path = require('path');
+const express = require('express');
+const app = express();
 app.use(express.static('public'));
 
-var port = 8014;
-var public_dir = path.join(__dirname, 'public');
+const port = 8014;
+const public_dir = path.join(__dirname, 'public');
 app.get('/', (req, res)=>{
     res.sendFile(path.join(public_dir, 'space.html'));
 });

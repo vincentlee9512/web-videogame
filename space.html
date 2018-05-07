@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>PONG</title>
+    <title>Space Shooter</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.1.1/dist/phaser.js"></script>
     <style type="text/css">
       canvas {
@@ -79,7 +79,9 @@
             var enemy = enemies.create(enemy_init[ship][0], enemy_init[ship][1], ship);
             enemy.setCollideWorldBounds(true);
             enemy.angle = 180;
+            enemy.weapon_loaded = true;
         });
+        console.log(enemies);
         //--------------------------------------------------------------------------
 
         /*
@@ -131,6 +133,7 @@
           return;
       }
       player_controller();
+      //enemy_controller();
     }
 
     function player_controller()
@@ -156,43 +159,40 @@
           player.setVelocityX(0);
       }
       //shooting
-      if(player.weapon_loaded){
-          if(cursors.space.isDown){
-              player.weapon_loaded = false;
-              //shoot
-              var lazer = lazers.create(player.x+30, player.y, 'lazer');
-              //lazer.setCollideWorldBounds(true);
-              lazer.setVelocity(lazer_vel, 0);
-              setTimeout(()=>{lazer.destroy();}, 1500);
-              console.log(lazer);
-              setTimeout(()=>{player.weapon_loaded = true;}, 1000);
-          }
+      if(player.weapon_loaded && player.active && cursors.space.isDown){
+          shoot(player);
       }
     }
 
+    function enemy_controller(){
+      enemies.children.entries.forEach(function(enemy){
+          if(enemy.weapon_loaded){
+              shoot(enemy);
+          }
+      });
+    }
+
+    function shoot(ship){
+        ship.weapon_loaded = false;
+        //shoot
+        var lz = (ship.angle === 0) ? {'x':ship.x+40, 'vel':lazer_vel} : {'x':ship-40, 'vel':-lazer_vel};
+        var lazer = lazers.create(lz['x'], ship.y, 'lazer');
+        //lazer.setCollideWorldBounds(true);
+        lazer.setVelocity(lz['vel'], 0);
+        setTimeout(()=>{lazer.destroy();}, 1500);
+        setTimeout(()=>{ship.weapon_loaded = true;}, 500);
+    }
+
+
     function player_destroy(player, lazer){
         player.disableBody(true, true);
-        setTimeout(()=>{player.endableBody(true, 100, 300, true, true);},3000);
+        setTimeout(()=>{player.enableBody(true, 100, 300, true, true);},3000);
     }
 
     function enemy_destroy(enemy, lazer){
-        console.log(enemy.texture.key)
         enemy.disableBody(true, true);
         setTimeout(()=>{enemy.enableBody(true, enemy_init[enemy.texture.key][0], enemy_init[enemy.texture.key][1], true, true);},3000);
     }
-
-    function reset_puck()
-    {
-      // put puck back in the center, then after 3 seconds start it with
-      // velocity towards the player with heighest points
-      puck.setVelocity(0,0);
-      puck.x = 400;
-      puck.y = 300;
-      if(player_score!=opponent_score)
-        puck_init_vel.x = (player_score>opponent_score) ? -500 : 500;
-      setTimeout(()=>{puck.setVelocity(puck_init_vel.x, puck_init_vel.y);}, 2000);
-    }
-
 
     </script>
 

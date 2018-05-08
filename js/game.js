@@ -18,7 +18,8 @@ const config = {
 
 let player;
 let enemies;
-const enemy_init = {'green': [1100, 150], 'purple': [1100, 450]};
+//const enemy_init = {'green': [1100, 150], 'purple': [1100, 450]};
+const player_init = {0:['yellow', 100, 150], 1:['red', 1100, 150], 2:['purple', 100, 450], 3:['green', 1100, 450]};
 let lazers;
 let player_speed = -400;
 let lazer_vel = 600;

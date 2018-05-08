@@ -1,20 +1,18 @@
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
 
-var fs = require('fs');
-var path = require('path');
-var http = require('http');
+const express = require('express');
+const socketio = require('socket.io');
 
-var express = require('express');
-var WebSocket = require('ws');
-var socketio = require('socket.io');
-
-var port = 8035;
-var app = express();
-var server = http.createServer(app);
+const port = 8035;
+const app = express();
+const server = http.createServer(app);
 server.listen(port);
 
 app.use('/js',express.static(__dirname + '/js'));
 
-var generate_player_id =  0;
+let generate_player_id = 0;
 
 app.get('/', (req, res) => {
     fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
@@ -29,7 +27,7 @@ app.get('/', (req, res) => {
     });
 });
 
-var io = socketio(server);
+const io = socketio(server);
 
 io.on('connection', (socket) => {
     console.log('connected');
@@ -61,9 +59,9 @@ io.on('connection', (socket) => {
 });
 
 function get_all_players(){
-    var players = [];
+    const players = [];
     Object.keys(io.sockets.connected).forEach(function(socketID){
-        var player = io.sockets.connected[socketID].player;
+        const player = io.sockets.connected[socketID].player;
         if(player) players.push(player);
     });
     return players;

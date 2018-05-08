@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Space Shooter</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.1.1/dist/phaser.js"></script>
+    <link rel="stylesheet" href="/css/game.css">
+</head>
+<body>
+
+<script src="/js/game.js"></script>
+<script type="application/javascript" src="/socket.io/socket.io.js"></script>
+
+<script>
+    const room = window.location.pathname.split('/')[2];
+    let socket = io('/' + room);
+</script>
+
+</body>
+</html>

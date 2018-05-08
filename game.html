@@ -8,13 +8,39 @@
 </head>
 <body>
 
-<script src="/js/game.js"></script>
-<script type="application/javascript" src="/socket.io/socket.io.js"></script>
+<label for="message">Chat</label>
+<input type="text" name="message" id="message">
+<button type="button" onclick="sendMessage(this)">Send</button>
 
+<script type="application/javascript" src="/socket.io/socket.io.js"></script>
 <script>
+    let socket = io();
+    let player_id;
     const room = window.location.pathname.split('/')[2];
-    let socket = io('/' + room);
+
+    socket.emit('join_room', room);
+
+    socket.on('player_joined', () => {
+        console.log("A new player joined!");
+    });
+
+    socket.on('assign_id', (data) => {
+        player_id = data;
+        console.log("Player ID: " + data);
+    });
+
+    socket.on('new_message', (msg) => {
+        console.log(msg);
+    });
+
+    function sendMessage(sender) {
+        const text = document.getElementById('message');
+        socket.emit('send_message', text.value);
+        text.value = '';
+    }
 </script>
+
+<script src="/js/game.js"></script>
 
 </body>
 </html>

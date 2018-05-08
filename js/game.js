@@ -16,10 +16,10 @@ const config = {
     }
 };
 
-let player;
+let players;
 let enemies;
-//const enemy_init = {'green': [1100, 150], 'purple': [1100, 450]};
-const player_init = {0:['yellow', 100, 150], 1:['red', 1100, 150], 2:['purple', 100, 450], 3:['green', 1100, 450]};
+const enemy_init = {'green': [1100, 150], 'purple': [1100, 450]};
+const player_init = {'yellow': [100, 150], 'red': [1100, 150], 'purple': [100, 450], 'green': [1100, 450]};
 let lazers;
 let player_speed = -400;
 let lazer_vel = 600;
@@ -43,51 +43,26 @@ function create() {
 
     // player ship
     //--------------------------------------------------------------------------
-    player = this.physics.add.sprite(100, 300, 'yellow');
-    player.setCollideWorldBounds(true);
-    player.weapon_loaded = true;
-    //--------------------------------------------------------------------------
-
-
-    // enemy ships
-    //--------------------------------------------------------------------------
-    enemies = this.physics.add.group();
-    Object.keys(enemy_init).forEach((ship) => {
-        const enemy = enemies.create(enemy_init[ship][0], enemy_init[ship][1], ship);
-        enemy.setCollideWorldBounds(true);
-        enemy.angle = 180;
-        enemy.weapon_loaded = true;
+    players = this.physics.add.group();
+    Object.keys(player_init).forEach((ship) => {
+        const player = players.create(player_init[ship][0], player_init[ship][1], ship);
+        player.angle = (player_init[ship][0] > 600) ? 180 : 0;
+        player.setCollideWorldBounds(true);
+        player.weapon_loaded = true;
     });
-    enemy_shoot();
+    //console.log(players);
     //--------------------------------------------------------------------------
 
     // lazers group
     //--------------------------------------------------------------------------
     lazers = this.physics.add.group();
-    this.physics.add.collider(player, lazers, player_destroy, null, this);
+    this.physics.add.collider(players, lazers, player_destroy, null, this);
     this.physics.add.collider(enemies, lazers, enemy_destroy, null, this);
     //--------------------------------------------------------------------------
 
     // Input Events
     cursors = this.input.keyboard.createCursorKeys();
 
-    /*
-    // colliders
-    //--------------------------------------------------------------------------
-    this.physics.add.collider(puck, player, change_puck_velocity, null, this);
-    this.physics.add.collider(puck, opponent, change_puck_velocity, null, this);
-    //--------------------------------------------------------------------------
-
-
-    //Printing for testing
-    //--------------------------------------------------------------------------
-    console.log(player);
-    console.log(opponent);
-    console.log(puck);
-    console.log(score_obj);
-    console.log(game);
-    //--------------------------------------------------------------------------
-    */
 }
 
 
@@ -95,10 +70,11 @@ function update() {
     if (game_over) {
         return;
     }
-    player_controller();
+    player_controller(players.children.entries[player_id]);
 }
 
-function player_controller() {
+function player_controller(player) {
+
     //vertical movement
     if (cursors.up.isDown) {
         player.setVelocityY(player_speed);
@@ -119,10 +95,32 @@ function player_controller() {
     else {
         player.setVelocityX(0);
     }
-    //shooting
+
+    let update = {
+        id: player_id,
+        hasShot: false,
+        xVelocity: player.body.velocity.x,
+        yVelocity: player.body.velocity.y
+    };
+
+    // Shooting
     if (player.weapon_loaded && player.active && cursors.space.isDown) {
+        update.hasShot = true;
         shoot(player);
     }
+
+    socket.emit('update', update);
+
+    socket.on('update_players', (data) => {
+        if (data.id !== player_id) {
+            let player = players.children.entries[data.id];
+            if (data.hasShot && player.weapon_loaded && player.active && cursors.space.isDown) {
+                update.hasShot = true;
+                shoot(player);
+            }
+            player.setVelocity(data.xVelocity, data.yVelocity);
+        }
+    });
 }
 
 function enemy_shoot() {
@@ -154,7 +152,7 @@ function shoot(ship) {
 function player_destroy(player, lazer) {
     player.disableBody(true, true);
     setTimeout(() => {
-        player.enableBody(true, 100, 300, true, true);
+        player.enableBody(true, player_init[player.texture.key][0], player_init[player.texture.key][1], true, true);
     }, 3000);
 }
 

@@ -1,3 +1,6 @@
+
+let gameScene = new Phaser.Scene('Game');
+
 const config = {
     type: Phaser.AUTO,
     width: 1200,
@@ -9,26 +12,35 @@ const config = {
             debug: false
         }
     },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    // scene: {
+    //     preload: preload,
+    //     create: create,
+    //     update: update
+    // }
+    scene: gameScene
 };
 
 let players;
-let enemies;
-const enemy_init = {'green': [1100, 150], 'purple': [1100, 450]};
-const player_init = {'yellow': [100, 150], 'red': [1100, 150], 'purple': [100, 450], 'green': [1100, 450]};
+let player_count = 4;
+const player_init = [
+                      {'yellow': [100, 300]},
+                      {'yellow': [100, 300], 'red': [1100, 300]},
+                      {'yellow': [100, 150], 'red': [1100, 300], 'purple': [100, 450]},
+                      {'yellow': [100, 150], 'red': [1100, 150], 'purple': [100, 450], 'green': [1100, 450]}
+                    ];
+// const player_init = {'yellow': [100, 150], 'red': [1100, 150], 'purple': [100, 450], 'green': [1100, 450]};
 let lazers;
 let player_speed = -400;
 let lazer_vel = 600;
 let cursors;
 const game_over = false;
+//Server emits to set this to true once everyone has entered the game
+// let game_start = true;
 
 const game = new Phaser.Game(config);
 
-function preload() {
+// function preload() {
+gameScene.preload = function(){
     this.load.image('background', '/assets/Space_Background.png');
     this.load.image('yellow', '/assets/ships/yellow.png');
     this.load.image('green', '/assets/ships/green.png');
@@ -37,27 +49,29 @@ function preload() {
     this.load.image('lazer', '/assets/lazer.png')
 }
 
-function create() {
+// function create() {
+gameScene.create = function(){
     // background for our game
     this.add.image(600, 300, 'background');
 
     // player ship
     //--------------------------------------------------------------------------
     players = this.physics.add.group();
-    Object.keys(player_init).forEach((ship) => {
-        const player = players.create(player_init[ship][0], player_init[ship][1], ship);
-        player.angle = (player_init[ship][0] > 600) ? 180 : 0;
+    Object.keys(player_init[player_count-1]).forEach((ship) => {
+        const player = players.create(player_init[player_count-1][ship][0], player_init[player_count-1][ship][1], ship);
+        player.angle = (player_init[player_count-1][ship][0] > 600) ? 180 : 0;
         player.setCollideWorldBounds(true);
+        player.body.immovable = true;
         player.weapon_loaded = true;
     });
-    //console.log(players);
+    console.log(player_count);
+    console.log(players);
     //--------------------------------------------------------------------------
 
-    // lazers group
+    // lazers group/collider
     //--------------------------------------------------------------------------
     lazers = this.physics.add.group();
     this.physics.add.collider(players, lazers, player_destroy, null, this);
-    this.physics.add.collider(enemies, lazers, enemy_destroy, null, this);
     //--------------------------------------------------------------------------
 
     // Input Events
@@ -66,7 +80,8 @@ function create() {
 }
 
 
-function update() {
+// function update() {
+gameScene.update = function(){
     if (game_over) {
         return;
     }
@@ -75,6 +90,7 @@ function update() {
 
 function player_controller(player) {
 
+  // if(game_start){
     //vertical movement
     if (cursors.up.isDown) {
         player.setVelocityY(player_speed);
@@ -99,29 +115,65 @@ function player_controller(player) {
     let update = {
         id: player_id,
         hasShot: false,
-        xVelocity: player.body.velocity.x,
-        yVelocity: player.body.velocity.y
+        x: player.x,
+        y: player.y
     };
 
     // Shooting
     if (player.weapon_loaded && player.active && cursors.space.isDown) {
-        update.hasShot = true;
-        shoot(player);
+        //update.hasShot = true;
+        shoot();
+        // gameScene.scene.start();
     }
-
     socket.emit('update', update);
-
-    socket.on('update_players', (data) => {
-        if (data.id !== player_id) {
-            let player = players.children.entries[data.id];
-            if (data.hasShot && player.weapon_loaded && player.active && cursors.space.isDown) {
-                update.hasShot = true;
-                shoot(player);
-            }
-            player.setVelocity(data.xVelocity, data.yVelocity);
-        }
-    });
+  // }
 }
+
+socket.on('start_game', (num_connected) => {
+  player_count = num_connected;
+  console.log("startGame!");
+  // console.log(player_count);
+  //game_start = true;
+  // game.scene.restart();
+  // window.location.reload();
+});
+
+socket.on('update_players', (data) => {
+  if(typeof players !== 'undefined'){
+    if (data.id !== player_id) {
+      let player = players.children.entries[data.id];
+      // if (data.hasShot && player.weapon_loaded && player.active && cursors.space.isDown) {
+      //   update.hasShot = true;
+      //   shoot(player);
+      // }
+      player.x = data.x;
+      player.y = data.y;
+    }
+  }
+});
+
+socket.on('player_destroy', (data) => {
+  players.children.entries[data].disableBody(true, true);
+
+});
+
+socket.on('player_respawn', (data) => {
+  ship = players.children.entries[data].texture.key;
+  players.children.entries[data].enableBody(true, player_init[player_count-1][ship][0], player_init[player_count-1][ship][1], true, true);
+});
+
+socket.on('player_shot', (data) => {
+  let ship = players.children.entries[data];
+  const lz = (ship.angle === 0) ? {'x': ship.x + 40, 'vel': lazer_vel} : {'x': ship.x - 40, 'vel': -lazer_vel};
+  const lazer = lazers.create(lz['x'], ship.y, 'lazer');
+  lazer.setCollideWorldBounds(false);
+  lazer.body.immovable = true;
+  lazer.setVelocity(lz['vel'], 0);
+  setTimeout(() => {
+    lazer.destroy();
+    delete lazer;
+  }, 1500);
+});
 
 function enemy_shoot() {
     enemies.children.entries.forEach(function (enemy) {
@@ -133,32 +185,22 @@ function enemy_shoot() {
     });
 }
 
-function shoot(ship) {
-    ship.weapon_loaded = false;
-    //shoot
-    const lz = (ship.angle === 0) ? {'x': ship.x + 40, 'vel': lazer_vel} : {'x': ship.x - 40, 'vel': -lazer_vel};
-    const lazer = lazers.create(lz['x'], ship.y, 'lazer');
-    lazer.setCollideWorldBounds(false);
-    lazer.setVelocity(lz['vel'], 0);
+function shoot() {
+  socket.emit('shoot', player_id);
+    players.children.entries[player_id].weapon_loaded = false;
     setTimeout(() => {
-        lazer.destroy();
-    }, 1500);
-    setTimeout(() => {
-        ship.weapon_loaded = true;
+        players.children.entries[player_id].weapon_loaded = true;
     }, 500);
 }
 
 
 function player_destroy(player, lazer) {
-    player.disableBody(true, true);
+  player.disableBody(true, true);
+  let player_is_me = player.texture.key === players.children.entries[player_id].texture.key;
+  if(player_is_me){
+    socket.emit('player_hit', player_id);
     setTimeout(() => {
-        player.enableBody(true, player_init[player.texture.key][0], player_init[player.texture.key][1], true, true);
+      socket.emit('respawn', player_id);
     }, 3000);
-}
-
-function enemy_destroy(enemy, lazer) {
-    enemy.disableBody(true, true);
-    setTimeout(() => {
-        enemy.enableBody(true, enemy_init[enemy.texture.key][0], enemy_init[enemy.texture.key][1], true, true);
-    }, 3000);
+  }
 }

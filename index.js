@@ -44,9 +44,21 @@ io.on('connection', (socket) => {
         let id = findOpenID(socket.id);
         socket.emit('assign_id', id);
 
+        let conn_players = io.sockets.adapter.rooms[room].length;
+        io.to(room).emit('start_game', conn_players);
+
         socket.on('update', (data) => {
-            io.to(room).emit('update_players', data);
-        })
+          io.to(room).emit('update_players', data);
+        });
+        socket.on('player_hit', (data) => {
+          io.to(room).emit('player_destroy', data);
+        });
+        socket.on('respawn', (data) => {
+          io.to(room).emit('player_respawn', data);
+        });
+        socket.on('shoot', (data) => {
+          io.to(room).emit('player_shot', data);
+        });
     });
 
     socket.on('send_message', (msg) => {

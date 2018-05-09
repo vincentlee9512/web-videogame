@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Space Shooter</title>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.1.1/dist/phaser.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.2.1/dist/phaser.js"></script>
     <link rel="stylesheet" href="/css/game.css">
 </head>
 <body>
@@ -17,11 +17,11 @@
     let socket = io();
     let player_id;
     const room = window.location.pathname.split('/')[2];
-
     socket.emit('join_room', room);
 
     socket.on('player_joined', () => {
         console.log("A new player joined!");
+        // gameScene.scene.start();
     });
 
     socket.on('assign_id', (data) => {

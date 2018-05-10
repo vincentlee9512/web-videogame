@@ -21,7 +21,7 @@
     let player_id;
     const ship_color = url[2];
     const player_count = parseInt(url[3]);
-    const room = url[4];
+    const room = url[4]+url[3];
 
     // This was moved to the end of gameScene.create() in game.js
     // because ships were trying to be created before the game

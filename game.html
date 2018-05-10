@@ -8,21 +8,30 @@
 </head>
 <body>
 
-<label for="message">Chat</label>
+<!-- <label for="message">Chat</label>
 <input type="text" name="message" id="message">
-<button type="button" onclick="sendMessage(this)">Send</button>
+<button type="button" onclick="sendMessage(this)">Send</button> -->
+<div id='gameDiv'></div>
+
 
 <script type="application/javascript" src="/socket.io/socket.io.js"></script>
 <script>
+    let url = window.location.pathname.split('/');
     let socket = io();
     let player_id;
-    const room = window.location.pathname.split('/')[2];
-    socket.emit('join_room', room);
+    const ship_color = url[2];
+    const player_count = parseInt(url[3]);
+    const room = url[4];
 
-    socket.on('player_joined', () => {
-        console.log("A new player joined!");
-        // gameScene.scene.start();
-    });
+    // This was moved to the end of gameScene.create() in game.js
+    // because ships were trying to be created before the game
+    // had been created
+    // socket.emit('join_room', {'room':room, 'color':ship_color});
+
+    // socket.on('player_joined', () => {
+    //     console.log("A new player joined!");
+    //     // gameScene.scene.start();
+    // });
 
     socket.on('assign_id', (data) => {
         player_id = data;

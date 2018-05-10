@@ -40,8 +40,11 @@ io.on('connection', (socket) => {
         if(typeof io.sockets.adapter.rooms[room].player_ids === 'undefined'){
           io.sockets.adapter.rooms[room].player_ids = [undefined,undefined,undefined,undefined];
         }
+        if(typeof io.sockets.adapter.rooms[room].player_count === 'undefined'){
+          io.sockets.adapter.rooms[room].player_count = player_data.player_count;
+        }
         // io.to(room).emit('player_joined');
-        let id = findOpenID(socket.id, io.sockets.adapter.rooms[room].player_ids);
+        let id = findOpenID(socket.id, io.sockets.adapter.rooms[room].player_ids, player_data.player_count);
         console.log(io.sockets.adapter.rooms[room].player_ids);
         socket.emit('assign_id', id);
         io.sockets.adapter.rooms[room].players[id] = {'player_id':id, 'color':player_data.color};
@@ -72,14 +75,17 @@ io.on('connection', (socket) => {
     });
 });
 
-function findOpenID(id, player_ids) {
-    for (let i = 0; i < player_ids.length; i++) {
-        if (!player_ids[i]) {
-            player_ids[i] = id;
-            return i
-        }
+function findOpenID(id, player_ids, player_count) {
+  for (let i = 0; i < player_ids.length; i++) {
+    if (!player_ids[i]) {
+      if(i > player_count-1){
+        return -1;
+      }
+      player_ids[i] = id;
+      return i;
     }
-    return null
+  }
+  return null
 }
 
 function removeID(id) {
@@ -94,6 +100,7 @@ function removeID(id) {
       }
     }
   });
+  return;
 }
 
 

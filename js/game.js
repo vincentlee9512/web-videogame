@@ -69,7 +69,7 @@ gameScene.create = function(){
 
     // had to emit here so that that it would not try to
     // create ships until the game had been created
-    socket.emit('join_room', {'room':room, 'color':ship_color});
+    socket.emit('join_room', {'room':room, 'color':ship_color, 'player_count': player_count});
 }
 
 

@@ -74,6 +74,34 @@ io.on('connection', (socket) => {
     });
 });
 
+let new_time = getRandomInt(1000, 3000);
+ast_spawner(new_time);
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getAstData(){
+  ast_data = {};
+  ast_data.x = getRandomInt(450, 750);
+  ast_data.scale = getRandomInt(1, 2);
+  ast_data.angle = getRandomInt(0, 360);
+  ast_data.xVel = getRandomInt(-30, 30);
+  ast_data.yVel = getRandomInt(200, 400);
+  return ast_data;
+}
+
+function ast_spawner(time){
+  let ast_data = getAstData();
+  io.emit('spawn_astroid', ast_data);
+  setTimeout(() => {
+    let new_time = getRandomInt(1000, 3000);
+    ast_spawner(new_time)
+  }, time);
+}
+
 function findOpenID(id, player_ids, player_count) {
   for (let i = 0; i < player_ids.length; i++) {
     if (!player_ids[i]) {

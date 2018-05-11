@@ -5,18 +5,33 @@
     <title>Space Shooter</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.2.1/dist/phaser.js"></script>
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+          integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
     <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
     <link rel="stylesheet" href="/css/master.css">
     <link rel="stylesheet" href="/css/game.css">
 </head>
 <body>
-
-<!-- <label for="message">Chat</label>
-<input type="text" name="message" id="message">
-<button type="button" onclick="sendMessage(this)">Send</button> -->
-<div id='gameDiv'></div>
-
-
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-auto">
+            <div id='gameDiv'></div>
+        </div>
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="message">Chat</label>
+                </div>
+                <input type="text" class="form-control" name="message" id="message">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" onclick="sendMessage(this)">Send</button>
+                </div>
+            </div>
+            <div class="" id="chat-box"></div>
+        </div>
+    </div>
+</div>
 <script type="application/javascript" src="/socket.io/socket.io.js"></script>
 <script>
     let url = window.location.pathname.split('/');
@@ -42,7 +57,9 @@
     });
 
     socket.on('new_message', (msg) => {
-        console.log(msg);
+        console.log("New Message: " + msg);
+        let chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = "<p>" + msg + "</p>" + chatBox.innerHTML
     });
 
     function sendMessage(sender) {

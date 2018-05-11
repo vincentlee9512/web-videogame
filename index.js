@@ -63,10 +63,9 @@ io.on('connection', (socket) => {
         socket.on('shoot', (data) => {
           io.to(room).emit('player_shot', data);
         });
-    });
-
-    socket.on('send_message', (msg) => {
-
+        socket.on('send_message', (msg) => {
+            io.to(room).emit('new_message', msg.replace(/\W/g, 'nonono!'));
+        });
     });
 
     socket.on('disconnect', () => {

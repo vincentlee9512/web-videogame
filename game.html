@@ -4,6 +4,9 @@
     <meta charset="UTF-8"/>
     <title>Space Shooter</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.2.1/dist/phaser.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
+    <link rel="stylesheet" href="/css/master.css">
     <link rel="stylesheet" href="/css/game.css">
 </head>
 <body>
@@ -21,7 +24,7 @@
     let player_id;
     const ship_color = url[2];
     const player_count = parseInt(url[3]);
-    const room = url[4]+url[3];
+    const room = url[4] + url[3];
 
     // This was moved to the end of gameScene.create() in game.js
     // because ships were trying to be created before the game

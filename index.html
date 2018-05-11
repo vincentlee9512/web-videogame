@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>web-videogame</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+          integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
+    <link href="css/master.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="display-1 text-center">web-videogame</h1>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="color-select">Ship Color</label>
+                </div>
+                <select id='color-select' class="custom-select">
+                    <option value="black">Black</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="orange">Orange</option>
+                    <option value="purple">Purple</option>
+                    <option value="red">Red</option>
+                    <option value="yellow">Yellow</option>
+                </select>
+            </div>
+            <div class="mt-3 input-group">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="room-id">Room ID</label>
+                </div>
+                <input id="room-id" class="form-control" type="text" placeholder="123" pattern="[a-zA-Z0-9]*" required>
+                <div class="input-group-append">
+                    <p class="input-group-text">Only a-z, 0-9</p>
+                </div>
+            </div>
+            <div class="mt-3 input-group">
+                <select id="player-count" class="custom-select" title="Player Count">
+                    <option value="1">1 Player</option>
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4">4 Players</option>
+                </select>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-primary" onclick="connect()">Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function connect() {
+        let color = document.getElementById('color-select');
+        let id = document.getElementById('room-id');
+        let playerCount = document.getElementById('player-count');
+
+        if (id.checkValidity()) {
+            window.location = '/game/' + color.value + '/' + playerCount.value + '/' + id.value;
+        } else {
+            id.reportValidity();
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -11,6 +11,7 @@ const port = 8009;
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/js', express.static(__dirname + '/js'));
 app.use('/assets', express.static(__dirname + '/assets'));
+app.use('/img', express.static(__dirname + '/img'));
 
 app.get('/game/*', (req, res) => {
     res.sendFile(__dirname + '/game.html')
@@ -19,9 +20,13 @@ app.get('/game/*', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
 });
-
+/*
 app.get('*', (req, res) => {
     res.redirect('/');
+});
+*/
+app.get('/about', (req, res) => {
+	res.sendFile(__dirname + '/about.html');
 });
 
 server.listen(port, () => {

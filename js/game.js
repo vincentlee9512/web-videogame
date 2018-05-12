@@ -250,6 +250,7 @@ gameScene.spawnAstroid = function(ast_data){
     astroid.setCollideWorldBounds(false);
     astroid.angle = ast_data.angle;
     astroid.setVelocity(ast_data.xVel, ast_data.yVel);
+    astroid.body.immovable = true;
     setTimeout(() => {
       astroid.destroy();
       delete astroid;

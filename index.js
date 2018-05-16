@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require('express');
 const socketIO = require('socket.io');
 const http = require('http');
@@ -89,7 +91,7 @@ function getRandomInt(min, max) {
 }
 
 function getAstData(){
-  ast_data = {};
+  let ast_data = {};
   ast_data.x = getRandomInt(550, 650);
   ast_data.scale = getRandomInt(1, 2);
   ast_data.angle = getRandomInt(0, 360);
